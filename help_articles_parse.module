@@ -1,0 +1,200 @@
+<?php
+
+/* hook_permission */
+function help_articles_parse_permission() {
+  return array(
+    'access help_article_parse content' => array(
+      'title' => t('Access content for the Current posts module'),
+    )
+  );
+}
+
+/* hook_menu */
+function help_articles_parse_menu() {
+ 
+	$items['help_articles_parse'] = array(
+		'title' => 'Add Nodes',
+		'page callback' => 'help_article_parce_form',
+		'access arguments' => array('access help_article_parse content'),
+	);
+	$items['help_articles_parse_success'] = array(
+		'title' => 'INSERT successful',
+		'page callback' => 'help_articles_parse_success',
+		'access arguments' => array('access help_articles_parse_success content'),
+	);
+	
+	return $items;
+}
+
+/* custom form */
+function help_article_parce_form() {
+	$terms = taxonomy_get_tree(12);
+	$option = _parce_getTags();
+	$form = 
+		"<div class='formsContent'>
+		 <div class='nodeForm'>
+			<form action='"._parce_nodeInsert()."'  method ='post'>
+				<div class='node_fields'>
+					<div class='close hide'><a href='#'>X</a></div>
+					<div class='field_item'>
+						<label for='title'>Title</label>
+						<input type='text' name='node_title[]' id='title'/>
+					</div>
+					<div class='field_item'>
+						<label for='body'>Description</label>
+						<textarea name='node_body[]' id='body'> </textarea>
+					</div>
+					<div class='field_item'>
+						<label for='cobol'>Cobol</label>
+						<input type='text' name='node_field_cobol[]' id='cobol'/>
+					</div>
+					<div class='field_item'>
+						<label for='tag'>Category</label>
+						<select id='tag' name='node_field_terms[]'>
+							<option value='none'>Select Category</option>";							
+					
+					foreach($option as $k => $v){					
+						$form .= $v;					
+					}
+							
+					$form .= "</select>
+					</div>
+				</div>
+				<div class='addNewForm'><a href='#'>Add New Form</a></div>
+				<div class='node_submit'><input name='saveNode' type='submit' value='Submit'></div>
+			</form>
+		</div>";
+		
+		$form .= 
+			"<div class='uploadFile'>
+				<div class='import-notes'>A few notes when uploading .csv file. 
+					<ul><li>Make sure the file is in a .csv format.</li>
+						<li>Columns should be in order => title,description,CobolName,termId <a href='upload/exampleFile.csv' target='_blank'>exampleFile.csv</a></li><li>Be sure to click the 'Import' button when you select a .csv file.</li></ul>
+				</div>
+				<form action='"._parce_upload_import()."'  method='post' enctype='multipart/form-data'>
+																
+					<span>Select File</span><input type='file' name='file' id='file'>
+					
+					<input type='submit' name='upload' value='Import'>				
+				</form>
+			</div>
+		</div>";
+
+	return $form;
+}
+
+/* getting tags for help_articles content type*/
+function _parce_getTags(){
+	$terms = taxonomy_get_tree(12);
+	foreach($terms as $k=>$v){
+		$options[] = "<option value='".$v->tid."'>".$v->name."</option>";		
+	};
+	return $options;
+}
+
+/* upload csv file and import */
+function _parce_upload_import(){
+	
+	if(isset($_POST['upload'])){
+	
+		$extension = end(explode(".", $_FILES["file"]["name"]));
+		
+		if(isset($extension) && $extension=='csv'){
+		
+			if ($_FILES["file"]["error"] > 0){
+				echo "<div class='messages status message'> Error: " . $_FILES["file"]["error"] . "</div>";
+			}else{				
+				if (file_exists("upload/" . $_FILES["file"]["name"])){
+					  echo  "<div class='messages status message'>".$_FILES["file"]["name"] . " already exists. </div>";
+				  }else{
+					  move_uploaded_file($_FILES["file"]["tmp_name"],"upload/" . $_FILES["file"]["name"]);
+					  
+					  $arrResult = array();
+						$handle = fopen("upload/".$_FILES["file"]["name"], 'r');
+						
+						if($handle) {
+							while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+							$arrResult[] = $data;							
+						}	
+							fclose($handle);						
+						}	
+												
+						foreach ($arrResult as $k => $v){
+							
+							$titles[] = $v[0];
+							
+							$title = $v[0];
+							$description = $v[1];
+							$cobol = $v[2];
+							$term = $v[3];
+							
+							$node = new stdClass();
+							$node->type = 'help_articles';
+							node_object_prepare($node);
+							
+							$node->language = 'und';
+							$node->title = $title;
+							$node->body[$node->language][0]['value']   = $description;
+							$node->body[$node->language][0]['summary'] = text_summary($description);
+							$node->body[$node->language][0]['format']  = 'filtered_html';
+							$node->field_cobol[$node->language][0]['value']   = $cobol;
+							if($term != '' && is_numeric($term)){
+								$node->field_help_articles[$node->language][0]['tid']   = $term;
+							}
+							
+							node_save($node);							
+						}
+						$message = "Thanks Your file has been uploaded and All data has been Saved";
+							echo "<div class='messages status message'>".$message;
+							echo "<ul class='titles'>";
+							foreach($titles as $k => $v){
+								echo "<li>".$v."</li>";
+							}
+							echo "</ul></div>";						
+				  }
+			}
+	  }else{
+		echo "<div class='messages status message'>Invalid file... You can Import only .csv file.</div>";
+	  }
+	}
+	
+}
+
+/* insert node function */
+function _parce_nodeInsert(){
+	
+	if(isset($_POST['saveNode'])){	
+		
+		for($i=0;$i<count($_POST['node_title']);$i++){		
+			
+			$titles[] = $_POST['node_title'][$i];
+			
+			$node = new stdClass();
+			$node->type = 'help_articles';
+			node_object_prepare($node);
+			$node->language = 'und';
+			$node->title = $_POST['node_title'][$i];
+			$node->body[$node->language][0]['value']   = $_POST['node_body'][$i];
+			$node->body[$node->language][0]['summary'] = text_summary($_POST['node_body'][$i]);
+			$node->body[$node->language][0]['format']  = 'filtered_html';
+			$node->field_cobol[$node->language][0]['value']   = $_POST['node_field_cobol'][$i];
+			if($_POST['node_field_terms'][$i] != 'none'){
+				$node->field_help_articles[$node->language][0]['tid']   = $_POST['node_field_terms'][$i];
+			}		
+			
+			node_save($node);			
+		}
+		
+		$message = "Thanks Your changes has been Saved";
+		echo "<div class='messages status message'>".$message;
+		echo "<ul class='titles'>";
+		foreach($titles as $k => $v){
+			echo "<li>".$v."</li>";
+		}
+		echo "</ul></div>";
+	}
+}
+
+
+
+

@@ -1,0 +1,8 @@
+name = Help Articles Parse 1
+description = Allows to save multiple nodes for help_articles content type using parser
+package = Parser
+core = 7.x
+
+scripts[] = help_article_parse.js
+stylesheets[all][] = help_article_parse.css
+

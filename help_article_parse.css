@@ -1,0 +1,105 @@
+/* custom form */
+.node_fields{
+	padding:7px 15px 15px 15px;
+	width:480px;
+	border:1px solid #999;
+	color:#4a4a4a;
+	margin:10px 0px 7px 0px;
+	
+}
+
+.hide{
+	display:none;
+}
+.addNewForm a{
+	color: #3390B7;		
+    text-shadow: 0px 1px 1px #000000;
+	text-decoration:none !important;
+}
+.nodeForm{
+	float:left;
+}
+.nodeForm  input[type="submit"], .uploadFile input[type="submit"]{
+	padding:6px 10px 4px !important;
+}
+
+.field_item{
+	display:inline-block;
+	width:100%;
+	margin-top:5px;
+	
+}
+.nodeForm .field_item label{
+	width:120px;
+	float:left;	
+}
+.nodeForm .field_item label span{
+	color:#ff0000;
+	font-size:12px;
+}
+.nodeForm .field_item  input, .nodeForm .field_item textarea{
+	float: left;
+	width: 360px;
+}
+.nodeForm .field_item  select{
+	width:150px;
+
+}
+.nodeForm .node_submit{
+	padding-top:20px;
+	width:510px;
+	text-align:right;
+}
+
+.uploadFile{
+	margin:10px 0 0 30px;
+	width:480px;
+	border:1px solid #999;
+	padding:15px;
+	float:left;
+	min-height:150px;
+}
+.uploadFile span{
+	display:inline-block;
+	width:120px;
+	font-weight: bold;
+	color:#4A4A4A;
+}
+
+.message{
+	width:1150px;
+	margin:0 auto !important;
+	padding: 20px 0 0 0 ;
+}
+ul.titles{
+	font-size:10px;
+	padding-left:30px;
+}
+.close{
+	font-weight:bold;	
+	text-align:right;
+	padding-bottom:5px;	
+}
+.close a{
+	color:#991111 !important;
+	text-decoration:none !important;
+	border:1px solid #4A4A4A;
+	padding:0 2px 0 2px;
+	
+}
+.import-notes{
+	color: #4A4A4A;
+    font-weight: bold;
+}
+.import-notes ul{
+	padding-top:10px;
+	font-size:10px;
+	color:#4A4A4A;
+	padding-left:25px;
+	font-weight:normal;
+}
+
+
+
+.
+/* end custom form */
